@@ -8,7 +8,7 @@ const productRouter = express.Router();
 productRouter.post("/", async (req, res, next) => {
   try {
     const { id } = await ProductModel.create(req.body);
-    req.status(201).send({ id });
+    res.status(201).send({ id });
   } catch (error) {
     next(error);
   }
