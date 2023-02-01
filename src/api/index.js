@@ -18,9 +18,11 @@ productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
     if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
+    if (req.query.category)
+      query.category = { [Op.iLike]: `${req.query.category}%` };
     const products = await ProductModel.findAll({
       where: { ...query },
-      attributes: ["name", "category", "description", "price"],
+      attributes: ["id", "name", "category", "description", "price"],
     });
     res.send(products);
   } catch (error) {
@@ -71,7 +73,7 @@ productRouter.put("/:productId", async (req, res, next) => {
 
 productRouter.delete("/:productId", async (req, res, next) => {
   try {
-    numberOfDeletedRows = await ProductModel.destroy({
+    const numberOfDeletedRows = await ProductModel.destroy({
       where: { id: req.params.productId },
     });
     if (numberOfDeletedRows === 1) {
