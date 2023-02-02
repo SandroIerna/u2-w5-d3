@@ -10,6 +10,9 @@ import {
   unauthorizedErrorHandler,
 } from "./errorHandlers.js";
 import productRouter from "./api/products/index.js";
+import reviewsRouter from "./api/reviews/index.js";
+import usersRouter from "./api/users/index.js";
+import categoriesRouter from "./api/categories/index.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -20,6 +23,9 @@ server.use(express.json());
 
 // ********************************** ENDPOINTS ****************************************
 server.use("/products", productRouter);
+server.use("/reviews", reviewsRouter);
+server.use("/users", usersRouter);
+server.use("/categories", categoriesRouter);
 
 // ******************************* ERROR HANDLERS **************************************
 server.use(badRequestErrorHandler);
