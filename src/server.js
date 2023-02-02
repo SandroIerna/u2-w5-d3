@@ -9,7 +9,7 @@ import {
   notFoundErrorHandler,
   unauthorizedErrorHandler,
 } from "./errorHandlers.js";
-import productRouter from "./api/index.js";
+import productRouter from "./api/products/index.js";
 
 const server = express();
 const port = process.env.PORT || 3001;

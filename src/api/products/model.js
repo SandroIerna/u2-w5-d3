@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequilize from "../db.js";
+import sequilize from "../../db.js";
 
 const ProductModel = sequilize.define("product", {
   id: {
@@ -11,10 +11,10 @@ const ProductModel = sequilize.define("product", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  category: {
+  /*   category: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
+  }, */
   description: {
     type: DataTypes.STRING,
     allowNull: false,
