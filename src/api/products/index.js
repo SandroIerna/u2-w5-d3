@@ -118,4 +118,34 @@ productRouter.get("/:productId/reviews", async (req, res, next) => {
   }
 });
 
+productRouter.put("/:productId/addCategory", async (req, res, next) => {
+  try {
+    const { id } = await ProductsCategoriesModel.create({
+      productId: req.params.productId,
+      categoryId: req.body.category,
+    });
+    res.send({ id });
+  } catch (error) {
+    next(error);
+  }
+});
+
+productRouter.delete(
+  "/:productId/removeCategory/:categoryId",
+  async (req, res, next) => {
+    try {
+      const numberOfDeletedRows = await ProductsCategoriesModel.destroy({
+        where: {
+          categoryId: req.params.categoryId,
+          productId: req.params.productId,
+        },
+      });
+      if (numberOfDeletedRows === 1) res.status(204).send();
+      else next(createHttpError(404, `Catego`));
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default productRouter;
