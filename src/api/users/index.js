@@ -1,6 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Op } from "sequelize";
+import ReviewsModel from "../reviews/model.js";
 import UsersModel from "./model.js";
 
 const usersRouter = express.Router();
@@ -23,6 +24,7 @@ usersRouter.get("/", async (req, res, next) => {
       where: { ...query },
       attributes: ["firstName", "lastName", "id"],
     });
+    res.send(users);
   } catch (error) {
     next(error);
   }
@@ -69,6 +71,17 @@ usersRouter.delete("/:userId", async (req, res, next) => {
       next(
         createHttpError(404, `User with id ${req.params.userId} not found!`)
       );
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.get("/:userId/reviews", async (req, res, next) => {
+  try {
+    const user = await UsersModel.findByPk(req.params.userId, {
+      include: { model: ReviewsModel },
+    });
+    res.send(user);
   } catch (error) {
     next(error);
   }

@@ -1,13 +1,22 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Op } from "sequelize";
+import ReviewsModel from "../reviews/model.js";
 import ProductModel from "./model.js";
+import ProductsCategoriesModel from "./productsCategoriesModel.js";
 
 const productRouter = express.Router();
 
 productRouter.post("/", async (req, res, next) => {
   try {
     const { id } = await ProductModel.create(req.body);
+    if (req.body.categories) {
+      await ProductsCategoriesModel.bulkCreate(
+        req.body.categories.map((category) => {
+          return { categoryId: category, productId: id };
+        })
+      );
+    }
     res.status(201).send({ id });
   } catch (error) {
     next(error);
@@ -18,15 +27,15 @@ productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
     if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
-    if (req.query.category)
-      query.category = { [Op.iLike]: `${req.query.category}%` };
+    if (req.query.categories)
+      query.categories = { [Op.iLike]: `${req.query.categories}%` };
     if (req.query.priceMin) query.price = { [Op.gte]: req.query.priceMin };
     if (req.query.priceMax)
       query.price = { ...query.price, [Op.lte]: req.query.priceMax };
 
     const products = await ProductModel.findAll({
       where: { ...query },
-      attributes: ["id", "name", "category", "description", "price"],
+      attributes: ["id", "name", "description", "price"],
     });
     res.send(products);
   } catch (error) {
@@ -90,6 +99,20 @@ productRouter.delete("/:productId", async (req, res, next) => {
         )
       );
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+productRouter.get("/:productId/reviews", async (req, res, next) => {
+  try {
+    const product = await ProductModel.findByPk(req.params.productId, {
+      include: {
+        model: ReviewsModel,
+        attributes: { exclude: ["createdAT", "updatedAt"] },
+      },
+    });
+    res.send(product);
   } catch (error) {
     next(error);
   }
