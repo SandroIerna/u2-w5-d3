@@ -1,6 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Op } from "sequelize";
+import CategoriesModel from "../categories/model.js";
 import ReviewsModel from "../reviews/model.js";
 import ProductModel from "./model.js";
 import ProductsCategoriesModel from "./productsCategoriesModel.js";
@@ -26,17 +27,34 @@ productRouter.post("/", async (req, res, next) => {
 productRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
+    const queryPagination = {};
     if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
     if (req.query.categories)
-      query.categories = { [Op.iLike]: `${req.query.categories}%` };
+      query.categories = { [Op.in]: `${req.query.categories}%` };
     if (req.query.priceMin) query.price = { [Op.gte]: req.query.priceMin };
     if (req.query.priceMax)
       query.price = { ...query.price, [Op.lte]: req.query.priceMax };
+    if (req.query.limit) queryPagination.limit = req.query.limit;
+    if (req.query.skip) queryPagination.skip = req.query.skip;
 
-    const products = await ProductModel.findAll({
-      where: { ...query },
-      attributes: ["id", "name", "description", "price"],
-    });
+    const products = await ProductModel.findAll(
+      {
+        offset: queryPagination.skip,
+        limit: queryPagination.limit,
+
+        where: { ...query },
+        attributes: ["id", "name", "description", "price"],
+        include: [
+          {
+            model: CategoriesModel,
+            attributes: ["name"],
+            through: { attributes: [] },
+          },
+        ],
+      },
+
+      {}
+    );
     res.send(products);
   } catch (error) {
     next(error);
